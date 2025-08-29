@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Comparador de Imágenes</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
+    body { background: #f0f2f5; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
+    .container { max-width: 1280px; width: 100%; background: white; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); padding: 20px; }
+    h1 { text-align: center; color: #2c3e50; margin-bottom: 15px; }
+    .description { text-align: center; color: #7f8c8d; margin-bottom: 25px; }
+    .comparator-wrapper { position: relative; width: 100%; overflow: hidden; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.15); }
+    .image-container { position: relative; width: 100%; height: 720px; }
+    .image-container img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
+    .image-before { position: absolute; top: 0; left: 0; height: 100%; width: 100%; overflow: hidden; clip-path: inset(0 50% 0 0); }
+    .slider { position: absolute; top: 0; left: 0; width: 100%; height: 100%; appearance: none; background: transparent; outline: none; margin: 0; z-index: 2; cursor: ew-resize; }
+    .slider::-webkit-slider-thumb { appearance: none; width: 40px; height: 40px; background: white; border: 3px solid #3498db; border-radius: 50%; box-shadow: 0 2px 6px rgba(0,0,0,0.3); cursor: ew-resize; }
+    .slider-line { position: absolute; top: 0; bottom: 0; left: 50%; width: 4px; background-color: #3498db; transform: translateX(-50%); pointer-events: none; z-index: 1; }
+    .year-labels { display: flex; justify-content: space-between; margin-top: 15px; font-weight: bold; color: #2c3e50; }
+    .instructions { text-align: center; margin-top: 15px; color: #7f8c8d; font-style: italic; }
+    .fullscreen-btn { display: block; margin: 20px auto 0; padding: 10px 20px; background: #3498db; color: white; font-weight: bold; border: none; border-radius: 6px; cursor: pointer; transition: background 0.3s; }
+    .fullscreen-btn:hover { background: #2980b9; }
+    .comparator-wrapper:fullscreen { width: 100vw; height: 100vh; border-radius: 0; }
+    .comparator-wrapper:fullscreen .image-container { height: 100vh; }
+    .comparator-wrapper:fullscreen .slider-line { background-color: #fff; }
+    .comparator-wrapper:fullscreen .slider::-webkit-slider-thumb { border-color: #fff; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Comparador de Imágenes</h1>
+    <p class="description">Desliza para comparar imágenes de diferentes años</p>
+
+    <div class="comparator-wrapper" id="comparator">
+      <div class="image-container">
+        <img class="image-after" src="" alt="Imagen del año después">
+        <div class="image-before">
+          <img src="" alt="Imagen del año antes">
+        </div>
+        <div class="slider-line"></div>
+        <input type="range" min="0" max="100" value="50" class="slider" id="slider">
+      </div>
+    </div>
+
+    <div class="year-labels">
+      <span></span>
+      <span></span>
+    </div>
+
+    <p class="instructions">Desliza el control horizontal para comparar las imágenes</p>
+
+    <button class="fullscreen-btn" id="fullscreen-btn">Pantalla completa</button>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // --- Aquí editar ---
+      const imgBeforeSrc = "img/antes.jpg"; // ruta de la imagen "antes"
+      const imgAfterSrc  = "img/despues.jpg"; // ruta de la imagen "después"
+      const yearBefore   = "Agosto 2023";         // etiqueta de la imagen antes
+      const yearAfter    = "Noviembre 2025";         // etiqueta de la imagen después
+      // -------------------
+
+      const beforeContainer = document.querySelector('.image-before');
+      const afterImage = document.querySelector('.image-after');
+      const beforeImage = document.querySelector('.image-before img');
+      const slider = document.getElementById('slider');
+      const sliderLine = document.querySelector('.slider-line');
+      const comparator = document.getElementById('comparator');
+      const yearLabels = document.querySelectorAll('.year-labels span');
+      const fullscreenBtn = document.getElementById('fullscreen-btn');
+
+      // Asignar imágenes y etiquetas
+      afterImage.src = imgAfterSrc;
+      beforeImage.src = imgBeforeSrc;
+      yearLabels[0].textContent = yearBefore;
+      yearLabels[1].textContent = yearAfter;
+
+      // Inicializar posición
+      updateSliderPosition(slider.value);
+
+      slider.addEventListener('input', function() {
+        updateSliderPosition(this.value);
+      });
+
+      function updateSliderPosition(value) {
+        const percentage = value + '%';
+        beforeContainer.style.clipPath = `inset(0 ${100 - value}% 0 0)`;
+        sliderLine.style.left = percentage;
+      }
+
+      // Click en la imagen mueve el slider
+      comparator.addEventListener('click', function(e) {
+        const rect = this.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const percentage = (x / rect.width) * 100;
+
+        slider.value = percentage;
+        updateSliderPosition(percentage);
+      });
+
+      // Pantalla completa solo para el comparador
+      fullscreenBtn.addEventListener('click', function() {
+        if (!document.fullscreenElement) {
+          comparator.requestFullscreen().catch(err => {
+            alert(`Error al activar pantalla completa: ${err.message}`);
+          });
+        } else {
+          document.exitFullscreen();
+        }
+      });
+    });
+  </script>
+</body>
+</html>
+
